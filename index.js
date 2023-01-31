@@ -1,18 +1,25 @@
 const express = require("express"); // Adding Express
 const app = express(); // Initializing Express
-const puppeteer = require("puppeteer"); // Adding Puppeteer
+let chrome = {};
+let puppeteer;
 
-import chromium from 'chrome-aws-lambda';
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+  // running on the Vercel platform.
+  chrome = require('chrome-aws-lambda');
+  puppeteer = require('puppeteer-core');
+} else {
+  // running locally.
+  puppeteer = require('puppeteer');
+}
 
 // Wrapping the Puppeteer browser logic in a GET request
 app.get("/", function (req, res) {
   async function getInfo(teachers,p=null,g=null) {
     if(teachers != null){
-      const browser = await  chromium.puppeteer.launch({
-          
-        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath,
+      const browser = await puppeteer.launch({
+        args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath,
         headless: true,
         ignoreHTTPSErrors: true,
       });
