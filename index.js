@@ -1,7 +1,15 @@
 const express = require("express"); // Adding Express
 const app = express(); // Initializing Express
-const puppeteer = require("puppeteer"); // Adding Puppeteer
 
+let chrome = {};
+let puppeteer;
+
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+  chrome = require("chrome-aws-lambda");
+  puppeteer = require("puppeteer-core");
+} else {
+  puppeteer = require("puppeteer");
+}
 
 // Wrapping the Puppeteer browser logic in a GET request
 app.get("/", function (req, res) {
@@ -12,7 +20,8 @@ app.get("/", function (req, res) {
           headless: true,
           // This setting allows us to scrape non-https websites easier
           ignoreHTTPSErrors: true,
-          defaultViewport: null,
+          defaultViewport: chrome.defaultViewport,
+          executablePath: await chrome.executablePath,
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
