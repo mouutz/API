@@ -16,7 +16,7 @@ app.get("/", function (req, res) {
   async function getInfo(teachers,p=null,g=null) {
     if(teachers != null){
       const browser = await puppeteer.launch({
-          
+          ignoreDefaultArgs: ['--disable-extensions'],
           headless: true,
           // This setting allows us to scrape non-https websites easier
           ignoreHTTPSErrors: true,
