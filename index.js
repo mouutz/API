@@ -1,33 +1,20 @@
 const express = require("express"); // Adding Express
 const app = express(); // Initializing Express
+const puppeteer = require("puppeteer"); // Adding Puppeteer
 
-let chrome = {};
-let puppeteer;
-
-if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-  chrome = require("chrome-aws-lambda");
-  puppeteer = require("puppeteer-core");
-} else {
-  puppeteer = require("puppeteer");
-}
+import chromium from 'chrome-aws-lambda';
 
 // Wrapping the Puppeteer browser logic in a GET request
 app.get("/", function (req, res) {
   async function getInfo(teachers,p=null,g=null) {
     if(teachers != null){
-      const browser = await puppeteer.launch({
-          ignoreDefaultArgs: ['--disable-extensions'],
-          headless: true,
-          // This setting allows us to scrape non-https websites easier
-          ignoreHTTPSErrors: true,
-          defaultViewport: chrome.defaultViewport,
-          executablePath: await chrome.executablePath,
-          args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-sync',
-            '--ignore-certificate-errors'
-        ],
+      const browser = await  chromium.puppeteer.launch({
+          
+        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
       });
       // Create a new page
       const page = await browser.newPage();
